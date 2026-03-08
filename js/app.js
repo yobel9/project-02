@@ -13,7 +13,7 @@ const App = {
         'commissions-youth': { title: 'Komisi Pemuda Remaja', render: () => Commissions.render('youth') },
         'commissions-men': { title: 'Komisi Pria', render: () => Commissions.render('men') },
         'commissions-women': { title: 'Komisi Wanita', render: () => Commissions.render('women') },
-        attendance: { title: 'Kehadiran', render: () => Attendance.render() },
+        attendance: { title: 'Struktur Pengurus', render: () => Attendance.render() },
         finance: { title: 'Keuangan', render: () => Finance.render() },
         events: { title: 'Acara', render: () => Events.render() }
     },

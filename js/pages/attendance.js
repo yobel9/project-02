@@ -1,287 +1,205 @@
 // ============================================
-// Church Admin - Attendance Page
+// Church Admin - Organization Structure Page
 // ============================================
 
 const Attendance = {
-    members: [],
-    attendanceRecords: [],
-    selectedDate: new Date().toISOString().split('T')[0],
-    selectedService: 'Sunday Service',
-    selectedMembers: [],
+    coreLeaders: [
+        { role: 'Pendeta Utama', name: 'Pdt. Andreas Simanjuntak', phone: '0812-1111-2222', email: 'andreas@gerejaku.id' },
+        { role: 'Pendeta Pembantu', name: 'Pdt. Maria Lestari', phone: '0812-3333-4444', email: 'maria@gerejaku.id' },
+        { role: 'Penatua Utama', name: 'Bpk. Yohanes Lim', phone: '0812-5555-6666', email: 'yohanes@gerejaku.id' }
+    ],
+
+    teams: [
+        { name: 'Ibadah Umum', lead: 'Pdt. Andreas Simanjuntak', members: 18, contact: '0812-1111-2222', schedule: 'Minggu 07:00' },
+        { name: 'Sekolah Minggu', lead: 'Ibu Deborah', members: 14, contact: '0812-7777-8888', schedule: 'Minggu 09:00' },
+        { name: 'Pemuda Remaja', lead: 'Bpk. Daniel', members: 12, contact: '0813-1234-5678', schedule: 'Sabtu 18:00' },
+        { name: 'Pujian & Penyembahan', lead: 'Sdri. Grace', members: 10, contact: '0812-9999-0000', schedule: 'Kamis 19:00' },
+        { name: 'Multimedia', lead: 'Sdr. Ardi', members: 8, contact: '0812-4444-1212', schedule: 'Minggu 06:00' },
+        { name: 'Diakonia & Sosial', lead: 'Ibu Ruth', members: 9, contact: '0812-8888-3434', schedule: 'Fleksibel' }
+    ],
 
     render() {
-        this.members = AppData.getMembers().filter(m => m.status === 'active');
-        this.attendanceRecords = AppData.getAttendance();
-        
-        const today = new Date();
-        const weekStart = this.getWeekStart(today);
-        
-        // Check if there's attendance for this week
-        const thisWeekRecord = this.attendanceRecords.find(a => a.date === weekStart);
-        this.selectedMembers = thisWeekRecord ? thisWeekRecord.presentMembers : [];
-        
-        const stats = this.getStats();
+        const totalTeams = this.teams.length;
+        const totalServants = this.teams.reduce((sum, t) => sum + t.members, 0);
 
         const content = document.getElementById('content');
         content.innerHTML = `
             <div class="page-header">
-                <h1 class="page-title">Kehadiran Jemaat</h1>
+                <h1 class="page-title">Struktur Pengurus Gereja</h1>
+                <button class="btn btn-primary" onclick="Attendance.showTeamListPrint()">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M6 9V2H18V9" stroke="currentColor" stroke-width="2"/><path d="M6 18H5A2 2 0 0 1 3 16V11A2 2 0 0 1 5 9H19A2 2 0 0 1 21 11V16A2 2 0 0 1 19 18H18" stroke="currentColor" stroke-width="2"/><rect x="6" y="14" width="12" height="8" stroke="currentColor" stroke-width="2"/></svg>
+                    Cetak Struktur
+                </button>
             </div>
 
-            <!-- Summary Cards -->
-            <div class="summary-grid">
+            <div class="summary-grid" style="margin-bottom: 20px;">
                 <div class="summary-card">
-                    <div class="summary-label">Total Jemaat Aktif</div>
-                    <div class="summary-value">${this.members.length}</div>
+                    <div class="summary-label">Total Komisi</div>
+                    <div class="summary-value">${totalTeams}</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-label">Hadir Minggu Ini</div>
-                    <div class="summary-value">${this.selectedMembers.length}</div>
+                    <div class="summary-label">Total Pelayan</div>
+                    <div class="summary-value">${totalServants}</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-label">Persentase Kehadiran</div>
-                    <div class="summary-value">${this.members.length > 0 ? Math.round((this.selectedMembers.length / this.members.length) * 100) : 0}%</div>
+                    <div class="summary-label">Jumlah Pendeta</div>
+                    <div class="summary-value">${this.coreLeaders.filter(l => l.role.includes('Pendeta')).length}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Penatua</div>
+                    <div class="summary-value">${this.coreLeaders.filter(l => l.role.includes('Penatua')).length}</div>
                 </div>
             </div>
 
-            <div class="attendance-grid">
-                <!-- Check-in Form -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Input Kehadiran</h3>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Tanggal</label>
-                        <input type="date" class="form-input" value="${this.selectedDate}" 
-                               onchange="Attendance.handleDateChange(this.value)">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Layanan</label>
-                        <select class="form-select" onchange="Attendance.handleServiceChange(this.value)">
-                            <option value="Sunday Service" ${this.selectedService === 'Sunday Service' ? 'selected' : ''}>Sunday Service</option>
-                            <option value="Youth Fellowship" ${this.selectedService === 'Youth Fellowship' ? 'selected' : ''}>Youth Fellowship</option>
-                            <option value="Bible Study" ${this.selectedService === 'Bible Study' ? 'selected' : ''}>Bible Study</option>
-                            <option value="Prayer Meeting" ${this.selectedService === 'Prayer Meeting' ? 'selected' : ''}>Prayer Meeting</option>
-                        </select>
-                    </div>
-
-                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                        <button class="btn btn-sm btn-secondary" onclick="Attendance.markAllPresent()">Pilih Semua</button>
-                        <button class="btn btn-sm btn-secondary" onclick="Attendance.clearAll()">Hapus Semua</button>
-                    </div>
-
-                    <div class="member-checklist">
-                        ${this.members.map(member => `
-                            <label class="checkbox-item">
-                                <input type="checkbox" 
-                                       ${this.selectedMembers.includes(member.id) ? 'checked' : ''} 
-                                       onchange="Attendance.toggleMember('${member.id}')">
-                                <div class="member-avatar" style="width: 32px; height: 32px; font-size: 0.786rem;">
-                                    ${Components.getInitials(member.name)}
-                                </div>
-                                <span class="member-name">${member.name}</span>
-                            </label>
-                        `).join('')}
-                    </div>
-
-                    <button class="btn btn-primary mt-2" style="width: 100%;" onclick="Attendance.saveAttendance()">
-                        Simpan Kehadiran
-                    </button>
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="card-header">
+                    <h3 class="card-title">Kepemimpinan Inti</h3>
                 </div>
-
-                <!-- Attendance History -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Riwayat Kehadiran</h3>
-                    </div>
-                    
-                    <div class="filters">
-                        <div class="filter-group">
-                            <label>Layanan:</label>
-                            <select class="form-select" id="historyServiceFilter" onchange="Attendance.renderHistory()">
-                                <option value="">Semua</option>
-                                <option value="Sunday Service">Sunday Service</option>
-                                <option value="Youth Fellowship">Youth Fellowship</option>
-                                <option value="Bible Study">Bible Study</option>
-                                <option value="Prayer Meeting">Prayer Meeting</option>
-                            </select>
+                <div class="summary-grid" style="margin-bottom: 0; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+                    ${this.coreLeaders.map(leader => `
+                        <div class="summary-card" style="align-items: flex-start;">
+                            <div class="summary-label">${leader.role}</div>
+                            <div class="summary-value" style="font-size: 1.1rem;">${leader.name}</div>
+                            <div style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px;">
+                                <div>📞 ${leader.phone}</div>
+                                <div>✉️ ${leader.email}</div>
+                            </div>
                         </div>
-                    </div>
+                    `).join('')}
+                </div>
+            </div>
 
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Daftar Komisi & Pengurus</h3>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Komisi</th>
+                                <th>Ketua</th>
+                                <th>Jumlah Pelayan</th>
+                                <th>Kontak</th>
+                                <th>Jadwal</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${this.teams.map(team => `
                                 <tr>
-                                    <th>Tanggal</th>
-                                    <th>Layanan</th>
-                                    <th>Jumlah Hadir</th>
-                                    <th>Persentase</th>
+                                    <td>${team.name}</td>
+                                    <td>${team.lead}</td>
+                                    <td>${team.members} orang</td>
+                                    <td>${team.contact}</td>
+                                    <td>${team.schedule}</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn view" onclick="Attendance.showTeamDetail('${team.name}')" title="Detail">
+                                                <svg viewBox="0 0 24 24" fill="none"><path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody id="historyTableBody">
-                                ${this.renderHistoryRows()}
-                            </tbody>
-                        </table>
-                    </div>
+                            `).join('')}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         `;
     },
 
-    getWeekStart(date) {
-        const d = new Date(date);
-        const day = d.getDay();
-        const diff = d.getDate() - day;
-        d.setDate(diff);
-        return d.toISOString().split('T')[0];
+    showTeamDetail(teamName) {
+        const team = this.teams.find(t => t.name === teamName);
+        if (!team) return;
+
+        const bodyHtml = `
+            <div style="display: grid; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; padding: 10px; background: var(--background); border-radius: var(--radius);">
+                    <span style="color: var(--text-secondary);">Komisi</span>
+                    <span>${team.name}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px; background: var(--background); border-radius: var(--radius);">
+                    <span style="color: var(--text-secondary);">Ketua</span>
+                    <span>${team.lead}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px; background: var(--background); border-radius: var(--radius);">
+                    <span style="color: var(--text-secondary);">Jumlah Pelayan</span>
+                    <span>${team.members} orang</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px; background: var(--background); border-radius: var(--radius);">
+                    <span style="color: var(--text-secondary);">Kontak</span>
+                    <span>${team.contact}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px; background: var(--background); border-radius: var(--radius);">
+                    <span style="color: var(--text-secondary);">Jadwal</span>
+                    <span>${team.schedule}</span>
+                </div>
+            </div>
+        `;
+
+        const footerHtml = `
+            <button class="btn btn-secondary" onclick="Components.closeModal()">Tutup</button>
+        `;
+
+        Components.modal('Detail Komisi', bodyHtml, footerHtml);
     },
 
-    getStats() {
-        const totalMembers = this.members.length;
-        const presentCount = this.selectedMembers.length;
-        
-        return {
-            totalMembers,
-            presentCount,
-            percentage: totalMembers > 0 ? Math.round((presentCount / totalMembers) * 100) : 0
-        };
-    },
+    showTeamListPrint() {
+        const rows = this.teams.map((team, idx) => `
+            <tr>
+                <td>${idx + 1}</td>
+                <td>${team.name}</td>
+                <td>${team.lead}</td>
+                <td>${team.members} orang</td>
+                <td>${team.contact}</td>
+                <td>${team.schedule}</td>
+            </tr>
+        `).join('');
 
-    handleDateChange(value) {
-        this.selectedDate = value;
-        
-        // Check if there's existing record for this date
-        const existingRecord = this.attendanceRecords.find(
-            a => a.date === value && a.service === this.selectedService
-        );
-        
-        if (existingRecord) {
-            this.selectedMembers = existingRecord.presentMembers;
-        } else {
-            this.selectedMembers = [];
-        }
-        
-        this.render();
-    },
-
-    handleServiceChange(value) {
-        this.selectedService = value;
-        
-        // Check if there's existing record for this date and service
-        const existingRecord = this.attendanceRecords.find(
-            a => a.date === this.selectedDate && a.service === value
-        );
-        
-        if (existingRecord) {
-            this.selectedMembers = existingRecord.presentMembers;
-        } else {
-            this.selectedMembers = [];
-        }
-        
-        this.render();
-    },
-
-    toggleMember(memberId) {
-        const index = this.selectedMembers.indexOf(memberId);
-        if (index === -1) {
-            this.selectedMembers.push(memberId);
-        } else {
-            this.selectedMembers.splice(index, 1);
-        }
-    },
-
-    markAllPresent() {
-        this.selectedMembers = this.members.map(m => m.id);
-        this.render();
-    },
-
-    clearAll() {
-        this.selectedMembers = [];
-        this.render();
-    },
-
-    saveAttendance() {
-        const record = {
-            date: this.selectedDate,
-            service: this.selectedService,
-            presentMembers: this.selectedMembers
-        };
-
-        // Check if record already exists
-        const existingIndex = this.attendanceRecords.findIndex(
-            a => a.date === record.date && a.service === record.service
-        );
-
-        if (existingIndex !== -1) {
-            // Update existing
-            record.id = this.attendanceRecords[existingIndex].id;
-            this.attendanceRecords[existingIndex] = record;
-        } else {
-            // Add new
-            record.id = AppData.generateId();
-            this.attendanceRecords.push(record);
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            Components.toast('Pop-up diblokir browser. Izinkan pop-up untuk mencetak.', 'warning');
+            return;
         }
 
-        // Save to data store
-        const data = AppData.getData();
-        data.attendance = this.attendanceRecords;
-        AppData.saveData(data);
-
-        Components.toast('Kehadiran berhasil disimpan', 'success');
-        this.render();
-    },
-
-    renderHistory() {
-        const serviceFilter = document.getElementById('historyServiceFilter')?.value || '';
-        this.render();
-        
-        if (serviceFilter) {
-            document.getElementById('historyServiceFilter').value = serviceFilter;
-            this.renderHistoryRows(serviceFilter);
-        }
-    },
-
-    renderHistoryRows(serviceFilter = '') {
-        const filtered = serviceFilter 
-            ? this.attendanceRecords.filter(a => a.service === serviceFilter)
-            : this.attendanceRecords;
-
-        const sorted = filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        if (sorted.length === 0) {
-            return `
-                <tr>
-                    <td colspan="4">
-                        <div class="empty-state" style="padding: 24px;">
-                            <p style="color: var(--text-secondary);">Belum ada data kehadiran</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }
-
-        return sorted.map(record => {
-            const percentage = this.members.length > 0 
-                ? Math.round((record.presentMembers.length / this.members.length) * 100) 
-                : 0;
-            
-            return `
-                <tr>
-                    <td>${Components.formatDate(record.date)}</td>
-                    <td>${record.service}</td>
-                    <td>${record.presentMembers.length} / ${this.members.length}</td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
-                                <div style="width: ${percentage}%; height: 100%; background: var(--accent); border-radius: 4px;"></div>
-                            </div>
-                            <span style="font-size: 0.857rem; color: var(--text-secondary);">${percentage}%</span>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+        printWindow.document.write(`
+            <!doctype html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>Cetak Struktur Pengurus</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 24px; color: #111827; }
+                    h1 { font-size: 20px; margin-bottom: 6px; }
+                    p { color: #6b7280; margin-top: 0; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+                    th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; font-size: 12px; }
+                    th { background: #f3f4f6; }
+                    @media print { body { margin: 0; } }
+                </style>
+            </head>
+            <body>
+                <h1>Struktur Pengurus Gereja</h1>
+                <p>Tanggal cetak: ${new Date().toLocaleDateString('id-ID')}</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Komisi</th>
+                            <th>Ketua</th>
+                            <th>Jumlah Pelayan</th>
+                            <th>Kontak</th>
+                            <th>Jadwal</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
     }
 };
