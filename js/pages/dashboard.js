@@ -229,15 +229,15 @@ const Dashboard = {
                     </button>
                     <button class="btn btn-secondary" onclick="App.navigateTo('attendance')">
                         <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Input Kehadiran
+                        Kelola Struktur
                     </button>
                     <button class="btn btn-secondary" onclick="App.navigateTo('finance')">
                         <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M12 1V23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 5H9.5C7.01 5 5 7.01 5 9.5S7.01 14 9.5 14H14.5C16.99 14 19 16.01 19 18.5S16.99 23 14.5 23H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Input Donasi
+                        Catat Keuangan
                     </button>
                     <button class="btn btn-secondary" onclick="App.navigateTo('announcements-events')">
                         <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                        Buat Acara
+                        Kelola Event
                     </button>
                 </div>
             </div>
