@@ -1460,6 +1460,34 @@ body.sidebar-minimized .sidebar-minimize svg {
     height: 14px;
 }
 
+/* Dashboard countdown */
+.countdown-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.countdown-box {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    min-width: 0;
+}
+
+.countdown-value {
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: 800;
+}
+
+.countdown-label {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    margin-top: 6px;
+}
+
 /* Filters */
 .filters {
     display: flex;
@@ -1920,6 +1948,23 @@ body.sidebar-minimized .sidebar-minimize svg {
         grid-template-columns: 1fr;
     }
 
+    .countdown-grid {
+        gap: 8px;
+    }
+
+    .countdown-box {
+        padding: 10px 8px;
+    }
+
+    .countdown-value {
+        font-size: 1.4rem;
+    }
+
+    .countdown-label {
+        font-size: 0.72rem;
+        margin-top: 4px;
+    }
+
     .sidebar-minimize {
         display: none;
     }
@@ -1994,6 +2039,16 @@ body.sidebar-minimized .sidebar-minimize svg {
     
     .summary-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 420px) {
+    .countdown-value {
+        font-size: 1.2rem;
+    }
+
+    .countdown-label {
+        font-size: 0.68rem;
     }
 }
 

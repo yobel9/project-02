@@ -91,22 +91,22 @@ const Dashboard = {
                         </div>
                         <button class="btn btn-sm btn-secondary" onclick="App.navigateTo('announcements-events')">Kelola Event</button>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(4, minmax(90px, 1fr)); gap: 12px;" id="eventCountdown" data-event-id="${primaryImportantEvent.id}">
-                        <div style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 14px; text-align: center;">
-                            <div id="countdownDays" style="font-size: 2rem; line-height: 1; font-weight: 800;">0</div>
-                            <div style="font-size: 0.8rem; opacity: 0.9; margin-top: 6px;">Hari</div>
+                    <div class="countdown-grid" id="eventCountdown" data-event-id="${primaryImportantEvent.id}">
+                        <div class="countdown-box">
+                            <div id="countdownDays" class="countdown-value">0</div>
+                            <div class="countdown-label">Hari</div>
                         </div>
-                        <div style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 14px; text-align: center;">
-                            <div id="countdownHours" style="font-size: 2rem; line-height: 1; font-weight: 800;">0</div>
-                            <div style="font-size: 0.8rem; opacity: 0.9; margin-top: 6px;">Jam</div>
+                        <div class="countdown-box">
+                            <div id="countdownHours" class="countdown-value">0</div>
+                            <div class="countdown-label">Jam</div>
                         </div>
-                        <div style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 14px; text-align: center;">
-                            <div id="countdownMinutes" style="font-size: 2rem; line-height: 1; font-weight: 800;">0</div>
-                            <div style="font-size: 0.8rem; opacity: 0.9; margin-top: 6px;">Menit</div>
+                        <div class="countdown-box">
+                            <div id="countdownMinutes" class="countdown-value">0</div>
+                            <div class="countdown-label">Menit</div>
                         </div>
-                        <div style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 14px; text-align: center;">
-                            <div id="countdownSeconds" style="font-size: 2rem; line-height: 1; font-weight: 800;">0</div>
-                            <div style="font-size: 0.8rem; opacity: 0.9; margin-top: 6px;">Detik</div>
+                        <div class="countdown-box">
+                            <div id="countdownSeconds" class="countdown-value">0</div>
+                            <div class="countdown-label">Detik</div>
                         </div>
                     </div>
                 ` : `
