@@ -179,6 +179,7 @@ const Events = {
                                 <button class="btn btn-sm btn-secondary" onclick="Events.shareToWhatsApp('${event.id}')">Share WA</button>
                                 <button class="btn btn-sm btn-secondary" onclick="Events.viewEvent('${event.id}')">Lihat</button>
                                 <button class="btn btn-sm btn-primary" onclick="Events.editEvent('${event.id}')">Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="Events.deleteEvent('${event.id}')">Hapus</button>
                             </div>
                         </div>
                     </td>
