@@ -653,6 +653,25 @@ const AppData = {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
     },
 
+    getCurrentActorName() {
+        try {
+            const sessionRaw = localStorage.getItem('churchAdminSession');
+            if (!sessionRaw) return 'System';
+            const session = JSON.parse(sessionRaw);
+            if (!session?.userId) return 'System';
+            const user = (this.getData().users || []).find((item) => item.id === session.userId);
+            if (!user) return 'System';
+            return user.username || user.name || 'System';
+        } catch (error) {
+            return 'System';
+        }
+    },
+
+    logCrudActivity(type, title, description) {
+        const actor = this.getCurrentActorName();
+        this.addActivity(type, title, `${description} • oleh ${actor}`);
+    },
+
     // Get members
     getMembers() {
         return this.getData().members;
@@ -671,7 +690,7 @@ const AppData = {
         data.users = data.users || [];
         data.users.push(user);
         this.saveData(data);
-        this.addActivity('member', 'User account created', user.username);
+        this.logCrudActivity('member', 'User ditambahkan', user.username || 'User');
         return user;
     },
 
@@ -682,6 +701,7 @@ const AppData = {
         if (idx !== -1) {
             data.users[idx] = { ...data.users[idx], ...updates };
             this.saveData(data);
+            this.logCrudActivity('member', 'User diperbarui', data.users[idx].username || 'User');
             return data.users[idx];
         }
         return null;
@@ -689,8 +709,10 @@ const AppData = {
 
     deleteUser(id) {
         const data = this.getData();
+        const user = (data.users || []).find((u) => u.id === id);
         data.users = (data.users || []).filter((u) => u.id !== id);
         this.saveData(data);
+        if (user) this.logCrudActivity('member', 'User dihapus', user.username || 'User');
     },
 
     // Add member
@@ -699,7 +721,7 @@ const AppData = {
         member.id = this.generateId();
         data.members.push(member);
         this.saveData(data);
-        this.addActivity('member', 'New member registered', `${member.name} joined as new member`);
+        this.logCrudActivity('member', 'Jemaat ditambahkan', member.name || 'Jemaat');
         return member;
     },
 
@@ -710,7 +732,7 @@ const AppData = {
         if (index !== -1) {
             data.members[index] = { ...data.members[index], ...updates };
             this.saveData(data);
-            this.addActivity('member', 'Member updated', `${data.members[index].name} profile has been updated`);
+            this.logCrudActivity('member', 'Jemaat diperbarui', data.members[index].name || 'Jemaat');
             return data.members[index];
         }
         return null;
@@ -722,6 +744,7 @@ const AppData = {
         const member = data.members.find(m => m.id === id);
         data.members = data.members.filter(m => m.id !== id);
         this.saveData(data);
+        if (member) this.logCrudActivity('member', 'Jemaat dihapus', member.name || 'Jemaat');
         return member;
     },
 
@@ -736,6 +759,7 @@ const AppData = {
         record.id = this.generateId();
         data.attendance.push(record);
         this.saveData(data);
+        this.logCrudActivity('event', 'Kehadiran ditambahkan', record.service || 'Kehadiran');
         return record;
     },
 
@@ -751,16 +775,7 @@ const AppData = {
         donation.amount = parseInt(donation.amount);
         data.donations.push(donation);
         this.saveData(data);
-        
-        const categoryNames = {
-            tithe: 'tithe',
-            offering: 'offering',
-            building: 'building fund',
-            special: 'special donation',
-            other: 'donation'
-        };
-        
-        this.addActivity('donation', 'Donation received', `${donation.donorName} gave ${categoryNames[donation.category] || 'donation'} Rp ${this.formatCurrency(donation.amount)}`);
+        this.logCrudActivity('donation', 'Pemasukan ditambahkan', `${donation.donorName || 'Donatur'} Rp ${this.formatCurrency(donation.amount)}`);
         return donation;
     },
 
@@ -775,6 +790,7 @@ const AppData = {
                 amount: updates.amount !== undefined ? parseInt(updates.amount) : data.donations[index].amount
             };
             this.saveData(data);
+            this.logCrudActivity('donation', 'Pemasukan diperbarui', data.donations[index].donorName || 'Pemasukan');
             return data.donations[index];
         }
         return null;
@@ -783,8 +799,10 @@ const AppData = {
     // Delete donation
     deleteDonation(id) {
         const data = this.getData();
+        const donation = data.donations.find(d => d.id === id);
         data.donations = data.donations.filter(d => d.id !== id);
         this.saveData(data);
+        if (donation) this.logCrudActivity('donation', 'Pemasukan dihapus', donation.donorName || 'Pemasukan');
     },
 
     // Get expenses
@@ -800,7 +818,7 @@ const AppData = {
         data.expenses = data.expenses || [];
         data.expenses.push(expense);
         this.saveData(data);
-        this.addActivity('donation', 'Expense recorded', `${expense.partyName} expense Rp ${this.formatCurrency(expense.amount)}`);
+        this.logCrudActivity('donation', 'Pengeluaran ditambahkan', `${expense.partyName || 'Pihak'} Rp ${this.formatCurrency(expense.amount)}`);
         return expense;
     },
 
@@ -816,6 +834,7 @@ const AppData = {
                 amount: updates.amount !== undefined ? parseInt(updates.amount) : data.expenses[index].amount
             };
             this.saveData(data);
+            this.logCrudActivity('donation', 'Pengeluaran diperbarui', data.expenses[index].partyName || 'Pengeluaran');
             return data.expenses[index];
         }
         return null;
@@ -824,8 +843,10 @@ const AppData = {
     // Delete expense
     deleteExpense(id) {
         const data = this.getData();
+        const expense = (data.expenses || []).find(e => e.id === id);
         data.expenses = (data.expenses || []).filter(e => e.id !== id);
         this.saveData(data);
+        if (expense) this.logCrudActivity('donation', 'Pengeluaran dihapus', expense.partyName || 'Pengeluaran');
     },
 
     // Structure (church board)
@@ -840,7 +861,7 @@ const AppData = {
         data.structure = data.structure || [];
         data.structure.push(entry);
         this.saveData(data);
-        this.addActivity('structure', 'Structure added', `${entry.role} - ${entry.name}`);
+        this.logCrudActivity('member', 'Struktur ditambahkan', `${entry.role || '-'} - ${entry.name || '-'}`);
         return entry;
     },
 
@@ -851,6 +872,7 @@ const AppData = {
         if (idx !== -1) {
             data.structure[idx] = { ...data.structure[idx], ...updates };
             this.saveData(data);
+            this.logCrudActivity('member', 'Struktur diperbarui', `${data.structure[idx].role || '-'} - ${data.structure[idx].name || '-'}`);
             return data.structure[idx];
         }
         return null;
@@ -858,8 +880,10 @@ const AppData = {
 
     deleteStructure(id) {
         const data = this.getData();
+        const entry = (data.structure || []).find(s => s.id === id);
         data.structure = (data.structure || []).filter(s => s.id !== id);
         this.saveData(data);
+        if (entry) this.logCrudActivity('member', 'Struktur dihapus', `${entry.role || '-'} - ${entry.name || '-'}`);
     },
 
     // Worship schedules
@@ -873,7 +897,7 @@ const AppData = {
         data.worshipSchedules = data.worshipSchedules || [];
         data.worshipSchedules.push(schedule);
         this.saveData(data);
-        this.addActivity('event', 'Jadwal ibadah ditambahkan', `${schedule.name}`);
+        this.logCrudActivity('event', 'Jadwal ibadah ditambahkan', schedule.name || 'Jadwal ibadah');
         return schedule;
     },
 
@@ -884,6 +908,7 @@ const AppData = {
         if (index !== -1) {
             data.worshipSchedules[index] = { ...data.worshipSchedules[index], ...updates };
             this.saveData(data);
+            this.logCrudActivity('event', 'Jadwal ibadah diperbarui', data.worshipSchedules[index].name || 'Jadwal ibadah');
             return data.worshipSchedules[index];
         }
         return null;
@@ -891,8 +916,10 @@ const AppData = {
 
     deleteWorshipSchedule(id) {
         const data = this.getData();
+        const schedule = (data.worshipSchedules || []).find((item) => item.id === id);
         data.worshipSchedules = (data.worshipSchedules || []).filter((item) => item.id !== id);
         this.saveData(data);
+        if (schedule) this.logCrudActivity('event', 'Jadwal ibadah dihapus', schedule.name || 'Jadwal ibadah');
     },
 
     // Church announcements
@@ -906,7 +933,7 @@ const AppData = {
         data.churchAnnouncements = data.churchAnnouncements || [];
         data.churchAnnouncements.push(announcement);
         this.saveData(data);
-        this.addActivity('event', 'Pengumuman ditambahkan', announcement.title);
+        this.logCrudActivity('event', 'Pengumuman ditambahkan', announcement.title || 'Pengumuman');
         return announcement;
     },
 
@@ -917,6 +944,7 @@ const AppData = {
         if (index !== -1) {
             data.churchAnnouncements[index] = { ...data.churchAnnouncements[index], ...updates };
             this.saveData(data);
+            this.logCrudActivity('event', 'Pengumuman diperbarui', data.churchAnnouncements[index].title || 'Pengumuman');
             return data.churchAnnouncements[index];
         }
         return null;
@@ -924,8 +952,10 @@ const AppData = {
 
     deleteChurchAnnouncement(id) {
         const data = this.getData();
+        const announcement = (data.churchAnnouncements || []).find((item) => item.id === id);
         data.churchAnnouncements = (data.churchAnnouncements || []).filter((item) => item.id !== id);
         this.saveData(data);
+        if (announcement) this.logCrudActivity('event', 'Pengumuman dihapus', announcement.title || 'Pengumuman');
     },
 
     // Inventory
@@ -942,7 +972,7 @@ const AppData = {
         data.inventory = data.inventory || [];
         data.inventory.push(item);
         this.saveData(data);
-        this.addActivity('event', 'Inventaris ditambahkan', item.name);
+        this.logCrudActivity('event', 'Inventaris ditambahkan', item.name || 'Inventaris');
         return item;
     },
 
@@ -958,6 +988,7 @@ const AppData = {
                 value: updates.value !== undefined && updates.value !== '' ? (parseInt(updates.value, 10) || 0) : data.inventory[index].value
             };
             this.saveData(data);
+            this.logCrudActivity('event', 'Inventaris diperbarui', data.inventory[index].name || 'Inventaris');
             return data.inventory[index];
         }
         return null;
@@ -965,8 +996,10 @@ const AppData = {
 
     deleteInventoryItem(id) {
         const data = this.getData();
-        data.inventory = (data.inventory || []).filter((item) => item.id !== id);
+        const item = (data.inventory || []).find((entry) => entry.id === id);
+        data.inventory = (data.inventory || []).filter((entry) => entry.id !== id);
         this.saveData(data);
+        if (item) this.logCrudActivity('event', 'Inventaris dihapus', item.name || 'Inventaris');
     },
 
     // Get events
@@ -981,7 +1014,7 @@ const AppData = {
         event.attendees = [];
         data.events.push(event);
         this.saveData(data);
-        this.addActivity('event', 'Event scheduled', `${event.name} has been scheduled`);
+        this.logCrudActivity('event', 'Event ditambahkan', event.name || 'Event');
         return event;
     },
 
@@ -992,6 +1025,7 @@ const AppData = {
         if (index !== -1) {
             data.events[index] = { ...data.events[index], ...updates };
             this.saveData(data);
+            this.logCrudActivity('event', 'Event diperbarui', data.events[index].name || 'Event');
             return data.events[index];
         }
         return null;
@@ -1000,8 +1034,10 @@ const AppData = {
     // Delete event
     deleteEvent(id) {
         const data = this.getData();
+        const event = data.events.find(e => e.id === id);
         data.events = data.events.filter(e => e.id !== id);
         this.saveData(data);
+        if (event) this.logCrudActivity('event', 'Event dihapus', event.name || 'Event');
     },
 
     // Auto-sync event statuses based on event date and time
