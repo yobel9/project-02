@@ -17,6 +17,7 @@ const App = {
         finance: { title: 'Keuangan', render: () => Finance.render() },
         inventory: { title: 'Inventaris Gereja', render: () => Inventory.render() },
         users: { title: 'Manajemen User', render: () => Users.render() },
+        settings: { title: 'Pengaturan', render: () => Settings.render() },
         'announcements-schedule': { title: 'Jadwal Ibadah', render: () => WorshipSchedule.render() },
         'announcements-events': { title: 'Event', render: () => Events.render() },
         'announcements-church': { title: 'Pengumuman Gereja', render: () => ChurchAnnouncements.render() },
@@ -115,24 +116,10 @@ const App = {
 
     setupUserActions() {
         const logoutBtn = document.getElementById('logoutBtn');
-        const backupBtn = document.getElementById('backupBtn');
-        const restoreBtn = document.getElementById('restoreBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', (event) => {
                 event.preventDefault();
                 Auth.logout();
-            });
-        }
-        if (backupBtn) {
-            backupBtn.addEventListener('click', (event) => {
-                event.preventDefault();
-                this.exportBackup();
-            });
-        }
-        if (restoreBtn) {
-            restoreBtn.addEventListener('click', (event) => {
-                event.preventDefault();
-                this.triggerRestore();
             });
         }
     },
@@ -151,10 +138,6 @@ const App = {
         const usersNav = document.querySelector('.nav-item[data-page="users"]')?.closest('li');
         if (usersNav) {
             usersNav.style.display = user.role === 'admin' ? '' : 'none';
-        }
-        const backupTools = document.getElementById('backupTools');
-        if (backupTools) {
-            backupTools.style.display = user.role === 'admin' ? 'grid' : 'none';
         }
     },
 
