@@ -654,9 +654,7 @@ const AppData = {
 
     getCurrentActorName() {
         try {
-            const sessionRaw = localStorage.getItem('churchAdminSession');
-            if (!sessionRaw) return 'System';
-            const session = JSON.parse(sessionRaw);
+            const session = StorageService.getJSON('churchAdminSession', null);
             if (!session?.userId) return 'System';
             const user = (this.getData().users || []).find((item) => item.id === session.userId);
             if (!user) return 'System';

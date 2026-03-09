@@ -6,13 +6,7 @@ const Auth = {
     sessionKey: 'churchAdminSession',
 
     getSession() {
-        const raw = localStorage.getItem(this.sessionKey);
-        if (!raw) return null;
-        try {
-            return JSON.parse(raw);
-        } catch (error) {
-            return null;
-        }
+        return StorageService.getJSON(this.sessionKey, null);
     },
 
     getCurrentUser() {
@@ -43,15 +37,15 @@ const Auth = {
 
         if (!user) return false;
 
-        localStorage.setItem(this.sessionKey, JSON.stringify({
+        StorageService.setJSON(this.sessionKey, {
             userId: user.id,
             loginAt: new Date().toISOString()
-        }));
+        });
         return true;
     },
 
     logout() {
-        localStorage.removeItem(this.sessionKey);
+        StorageService.remove(this.sessionKey);
         window.location.reload();
     },
 
