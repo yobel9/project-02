@@ -146,6 +146,14 @@
                         <span class="user-role" id="sidebarUserRole">Administrator</span>
                     </div>
                 </div>
+                <div id="backupTools" style="margin-top: 10px; display: grid; gap: 6px;">
+                    <button class="btn btn-secondary" id="backupBtn" style="width: 100%; justify-content: center;">
+                        Backup Data
+                    </button>
+                    <button class="btn btn-secondary" id="restoreBtn" style="width: 100%; justify-content: center;">
+                        Restore Data
+                    </button>
+                </div>
                 <button class="btn btn-secondary" id="logoutBtn" style="margin-top: 10px; width: 100%; justify-content: center;">
                     Logout
                 </button>
@@ -196,6 +204,7 @@
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
+    <input type="file" id="restoreInput" accept=".json,application/json" style="display:none" onchange="App.handleRestoreFile(event)">
 
     <script src="js/data.js"></script>
     <script src="js/components.js"></script>

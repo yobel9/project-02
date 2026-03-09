@@ -115,10 +115,24 @@ const App = {
 
     setupUserActions() {
         const logoutBtn = document.getElementById('logoutBtn');
+        const backupBtn = document.getElementById('backupBtn');
+        const restoreBtn = document.getElementById('restoreBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', (event) => {
                 event.preventDefault();
                 Auth.logout();
+            });
+        }
+        if (backupBtn) {
+            backupBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                this.exportBackup();
+            });
+        }
+        if (restoreBtn) {
+            restoreBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                this.triggerRestore();
             });
         }
     },
@@ -137,6 +151,10 @@ const App = {
         const usersNav = document.querySelector('.nav-item[data-page="users"]')?.closest('li');
         if (usersNav) {
             usersNav.style.display = user.role === 'admin' ? '' : 'none';
+        }
+        const backupTools = document.getElementById('backupTools');
+        if (backupTools) {
+            backupTools.style.display = user.role === 'admin' ? 'grid' : 'none';
         }
     },
 
@@ -191,6 +209,88 @@ const App = {
     // Utility to navigate to a page
     navigateTo(pageName) {
         this.loadPage(pageName);
+    },
+
+    exportBackup() {
+        if (!Auth.isAdmin()) {
+            Components.toast('Hanya admin yang dapat backup data.', 'warning');
+            return;
+        }
+
+        const payload = {
+            app: 'GerejaKu Admin',
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            data: AppData.getData()
+        };
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `backup-gerejaku-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        Components.toast('Backup data berhasil diunduh.', 'success');
+    },
+
+    triggerRestore() {
+        if (!Auth.isAdmin()) {
+            Components.toast('Hanya admin yang dapat restore data.', 'warning');
+            return;
+        }
+        const input = document.getElementById('restoreInput');
+        if (!input) return;
+        input.value = '';
+        input.click();
+    },
+
+    handleRestoreFile(event) {
+        if (!Auth.isAdmin()) {
+            Components.toast('Hanya admin yang dapat restore data.', 'warning');
+            return;
+        }
+
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const parsed = JSON.parse(reader.result);
+                const candidate = parsed && typeof parsed === 'object' && parsed.data ? parsed.data : parsed;
+                const requiredKeys = ['members', 'donations', 'expenses', 'events', 'activities'];
+                const isValid = requiredKeys.every((key) => Array.isArray(candidate?.[key]));
+
+                if (!isValid) {
+                    Components.toast('File backup tidak valid.', 'error');
+                    return;
+                }
+
+                const bodyHtml = '<p style="margin:0;color:var(--text-secondary);">Restore akan menimpa semua data saat ini. Lanjutkan?</p>';
+                const footerHtml = `
+                    <button class="btn btn-secondary" onclick="Components.closeModal()">Batal</button>
+                    <button class="btn btn-primary" onclick="App.confirmRestore()">Restore</button>
+                `;
+                window.__restoreCandidateData = candidate;
+                Components.modal('Restore Data', bodyHtml, footerHtml);
+            } catch (error) {
+                Components.toast('Gagal membaca file backup.', 'error');
+            }
+        };
+        reader.readAsText(file);
+    },
+
+    confirmRestore() {
+        if (!window.__restoreCandidateData) return;
+        AppData.saveData(window.__restoreCandidateData);
+        AppData.init();
+        window.__restoreCandidateData = null;
+        Components.closeModal();
+        Components.toast('Restore data berhasil. Halaman akan dimuat ulang.', 'success');
+        setTimeout(() => window.location.reload(), 500);
     }
 };
 
