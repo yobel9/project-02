@@ -13,6 +13,7 @@ const Dashboard = {
         const activeAnnouncements = AppData.getChurchAnnouncements()
             .filter((item) => item.status === 'published');
         const recentAnnouncements = activeAnnouncements.slice(0, 3);
+        const worshipSchedules = AppData.getWorshipSchedules();
         const totalIncome = AppData.getDonations().reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
         const totalExpense = AppData.getExpenses().reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
         const totalBalance = totalIncome - totalExpense;
@@ -208,6 +209,38 @@ const Dashboard = {
                         }).join('') : `
                             <div class="empty-state" style="padding: 24px;">
                                 <p style="color: var(--text-secondary);">Belum ada event normal/rendah</p>
+                            </div>
+                        `}
+                    </div>
+                </div>
+
+                <!-- Worship Schedule -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Jadwal Ibadah</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="App.navigateTo('announcements-schedule')">Kelola Jadwal</button>
+                    </div>
+                    <div class="event-list">
+                        ${worshipSchedules.length > 0 ? worshipSchedules.slice(0, 4).map(schedule => `
+                            <div class="event-card">
+                                <div class="event-info" style="flex: 1;">
+                                    <div class="event-name">${schedule.name}</div>
+                                    <div class="event-meta">
+                                        <span>
+                                            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            ${schedule.startTime} - ${schedule.endTime}
+                                        </span>
+                                        <span>
+                                            <svg viewBox="0 0 24 24" fill="none"><path d="M21 10C21 14.9706 16.9706 19 12 19C7.02944 19 3 14.9706 3 10C3 5.02944 7.02944 1 12 1C16.9706 1 21 5.02944 21 10Z" stroke="currentColor" stroke-width="2"/><path d="M21 10V14M21 14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            ${schedule.location || '-'}
+                                        </span>
+                                        ${schedule.dayOfWeek ? `<span class="badge badge-info">${schedule.dayOfWeek}</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('') : `
+                            <div class="empty-state" style="padding: 24px;">
+                                <p style="color: var(--text-secondary);">Belum ada jadwal ibadah</p>
                             </div>
                         `}
                     </div>
