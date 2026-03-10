@@ -44,6 +44,7 @@ const StorageService = {
     configKey: 'databaseConfig',
     autoSyncKey: 'storageAutoSync',
     autoPullKey: 'storageAutoPull',
+    syncMetaKey: 'storageSyncMeta',
     defaultMode: 'local',
     syncTimer: null,
     syncInProgress: false,
@@ -115,6 +116,61 @@ const StorageService = {
 
     setAutoPullEnabled(enabled) {
         localStorage.setItem(this.autoPullKey, enabled ? 'true' : 'false');
+    },
+
+    getSyncMeta() {
+        const raw = localStorage.getItem(this.syncMetaKey);
+        const base = {
+            dirty: false,
+            lastLocalChangeAt: '',
+            lastPushAt: '',
+            lastPullAt: '',
+            lastError: ''
+        };
+        if (!raw) return base;
+        try {
+            return { ...base, ...JSON.parse(raw) };
+        } catch (error) {
+            return base;
+        }
+    },
+
+    setSyncMeta(nextMeta) {
+        const merged = {
+            ...this.getSyncMeta(),
+            ...nextMeta
+        };
+        localStorage.setItem(this.syncMetaKey, JSON.stringify(merged));
+        return merged;
+    },
+
+    markLocalChange() {
+        this.setSyncMeta({
+            dirty: true,
+            lastLocalChangeAt: new Date().toISOString()
+        });
+    },
+
+    markPushSuccess() {
+        this.setSyncMeta({
+            dirty: false,
+            lastPushAt: new Date().toISOString(),
+            lastError: ''
+        });
+    },
+
+    markPullSuccess() {
+        this.setSyncMeta({
+            dirty: false,
+            lastPullAt: new Date().toISOString(),
+            lastError: ''
+        });
+    },
+
+    markSyncError(message) {
+        this.setSyncMeta({
+            lastError: message || 'Unknown sync error'
+        });
     },
 
     createAdapter() {
@@ -202,14 +258,20 @@ const StorageService = {
 
         if (!res.ok) {
             const message = await res.text();
+            this.markSyncError(message || 'Push data ke database gagal.');
             throw new Error(message || 'Push data ke database gagal.');
         }
+        this.markPushSuccess();
         return true;
     },
 
-    async pullDatabaseDataToLocal(storageKey = 'churchAdminData') {
+    async pullDatabaseDataToLocal(storageKey = 'churchAdminData', options = {}) {
+        const force = options.force === true;
         if (!this.isDatabaseConfigReady()) {
             throw new Error('Konfigurasi database belum lengkap.');
+        }
+        if (!force && this.getSyncMeta().dirty) {
+            throw new Error('Ada perubahan lokal yang belum tersinkron. Push dulu atau gunakan force pull.');
         }
         const url = `${this.getSupabaseBaseUrl()}?id=eq.${encodeURIComponent(storageKey)}&select=payload,updated_at&limit=1`;
         const res = await fetch(url, {
@@ -219,6 +281,7 @@ const StorageService = {
 
         if (!res.ok) {
             const message = await res.text();
+            this.markSyncError(message || 'Pull data dari database gagal.');
             throw new Error(message || 'Pull data dari database gagal.');
         }
 
@@ -228,6 +291,7 @@ const StorageService = {
         }
 
         this.setJSON(storageKey, rows[0].payload);
+        this.markPullSuccess();
         return rows[0];
     },
 
@@ -250,6 +314,7 @@ const StorageService = {
         try {
             await this.pushLocalDataToDatabase(storageKey);
         } catch (error) {
+            this.markSyncError(error.message);
             console.warn('[StorageService] Auto push failed:', error.message);
         } finally {
             this.syncInProgress = false;
@@ -258,14 +323,18 @@ const StorageService = {
 
     async autoPullOnStartup(storageKey = 'churchAdminData') {
         if (this.getMode() !== 'database' || !this.isAutoPullEnabled() || !this.isDatabaseConfigReady()) {
-            return false;
+            return { pulled: false, reason: 'disabled' };
+        }
+        if (this.getSyncMeta().dirty) {
+            return { pulled: false, reason: 'local_dirty' };
         }
         try {
-            await this.pullDatabaseDataToLocal(storageKey);
-            return true;
+            await this.pullDatabaseDataToLocal(storageKey, { force: false });
+            return { pulled: true, reason: 'ok' };
         } catch (error) {
+            this.markSyncError(error.message);
             console.warn('[StorageService] Auto pull skipped:', error.message);
-            return false;
+            return { pulled: false, reason: 'error', message: error.message };
         }
     },
 

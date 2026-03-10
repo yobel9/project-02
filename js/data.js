@@ -164,6 +164,7 @@ const AppData = {
 
     // Save data to storage adapter
     saveData(data) {
+        StorageService.markLocalChange();
         StorageService.setJSON('churchAdminData', data);
         StorageService.queueAutoPush('churchAdminData');
     },

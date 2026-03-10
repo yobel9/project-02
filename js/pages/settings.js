@@ -9,6 +9,13 @@ const Settings = {
         const dbConfig = StorageService.getDatabaseConfig();
         const autoSyncEnabled = StorageService.isAutoSyncEnabled();
         const autoPullEnabled = StorageService.isAutoPullEnabled();
+        const syncMeta = StorageService.getSyncMeta();
+        const formatSyncTime = (iso) => {
+            if (!iso) return '-';
+            const d = new Date(iso);
+            if (Number.isNaN(d.getTime())) return '-';
+            return d.toLocaleString('id-ID');
+        };
 
         const content = document.getElementById('content');
         content.innerHTML = `
@@ -78,6 +85,13 @@ const Settings = {
                     <h3 class="card-title">Sinkronisasi Database (Manual)</h3>
                 </div>
                 ${isAdmin ? `
+                    <div style="display:grid; gap:8px; margin-bottom: 14px; font-size: 0.9rem;">
+                        <div><strong>Status Local:</strong> ${syncMeta.dirty ? '<span style="color: var(--warning);">Belum tersinkron</span>' : '<span style="color: var(--accent);">Sinkron</span>'}</div>
+                        <div><strong>Perubahan Lokal Terakhir:</strong> ${formatSyncTime(syncMeta.lastLocalChangeAt)}</div>
+                        <div><strong>Push Terakhir:</strong> ${formatSyncTime(syncMeta.lastPushAt)}</div>
+                        <div><strong>Pull Terakhir:</strong> ${formatSyncTime(syncMeta.lastPullAt)}</div>
+                        <div><strong>Error Terakhir:</strong> ${syncMeta.lastError || '-'}</div>
+                    </div>
                     <p style="color: var(--text-secondary); margin-bottom: 14px;">
                         Gunakan fitur ini untuk uji koneksi dan sinkron data lokal dengan Supabase secara manual selama fase development.
                     </p>
@@ -154,8 +168,10 @@ const Settings = {
         try {
             await StorageService.testDatabaseConnection();
             Components.toast('Koneksi database berhasil.', 'success');
+            this.render();
         } catch (error) {
             Components.toast(`Koneksi database gagal: ${error.message}`, 'error');
+            this.render();
         }
     },
 
@@ -163,19 +179,40 @@ const Settings = {
         try {
             await StorageService.pushLocalDataToDatabase('churchAdminData');
             Components.toast('Push data lokal ke database berhasil.', 'success');
+            this.render();
         } catch (error) {
             Components.toast(`Push gagal: ${error.message}`, 'error');
+            this.render();
         }
     },
 
     async pullFromDatabase() {
+        const syncMeta = StorageService.getSyncMeta();
+        if (syncMeta.dirty) {
+            const bodyHtml = `
+                <p style="margin:0;color:var(--text-secondary);">
+                    Ada perubahan lokal yang belum tersinkron. Pull sekarang akan menimpa data lokal. Lanjutkan?
+                </p>
+            `;
+            const footerHtml = `
+                <button class="btn btn-secondary" onclick="Components.closeModal()">Batal</button>
+                <button class="btn btn-danger" onclick="Components.closeModal(); Settings.forcePullFromDatabase()">Force Pull</button>
+            `;
+            Components.modal('Konfirmasi Force Pull', bodyHtml, footerHtml);
+            return;
+        }
+        await this.forcePullFromDatabase(false);
+    },
+
+    async forcePullFromDatabase(force = true) {
         try {
-            await StorageService.pullDatabaseDataToLocal('churchAdminData');
+            await StorageService.pullDatabaseDataToLocal('churchAdminData', { force });
             AppData.init();
             Components.toast('Pull data dari database berhasil. Halaman akan dimuat ulang.', 'success');
             setTimeout(() => window.location.reload(), 500);
         } catch (error) {
             Components.toast(`Pull gagal: ${error.message}`, 'error');
+            this.render();
         }
     }
 };

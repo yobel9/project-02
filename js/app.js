@@ -33,10 +33,12 @@ const App = {
         this.updateCurrentUserProfile();
 
         // Optional startup sync from database mode (safe no-op in local mode).
-        const pulled = await StorageService.autoPullOnStartup('churchAdminData');
-        if (pulled) {
+        const startupSync = await StorageService.autoPullOnStartup('churchAdminData');
+        if (startupSync.pulled) {
             AppData.init();
             Components.toast('Data terbaru berhasil dimuat dari database.', 'success');
+        } else if (startupSync.reason === 'local_dirty') {
+            Components.toast('Auto pull dilewati karena ada perubahan lokal yang belum tersinkron.', 'warning');
         }
 
         this.loadPage('dashboard');
