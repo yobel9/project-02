@@ -11,7 +11,8 @@ const Dashboard = {
 
         const stats = AppData.getStats();
         const activeAnnouncements = AppData.getChurchAnnouncements()
-            .filter((item) => item.status === 'published').length;
+            .filter((item) => item.status === 'published');
+        const recentAnnouncements = activeAnnouncements.slice(0, 3);
         const totalIncome = AppData.getDonations().reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
         const totalExpense = AppData.getExpenses().reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
         const totalBalance = totalIncome - totalExpense;
@@ -58,7 +59,7 @@ const Dashboard = {
                 ${Components.statCard(
                     { type: 'warning', svg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
                     'Pengumuman Aktif',
-                    activeAnnouncements,
+                    activeAnnouncements.length,
                     '',
                     ''
                 )}
@@ -122,6 +123,35 @@ const Dashboard = {
 
             <!-- Dashboard Grid -->
             <div class="dashboard-grid split-grid">
+                <!-- Church Announcements -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Pengumuman Gereja</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="App.navigateTo('announcements-church')">Kelola Pengumuman</button>
+                    </div>
+                    ${recentAnnouncements.length > 0 ? `
+                        <ul class="activity-list">
+                            ${recentAnnouncements.map(announcement => `
+                                <li class="activity-item">
+                                    <div class="activity-icon announcement">
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </div>
+                                    <div class="activity-content">
+                                        <div class="activity-text"><strong>${announcement.title}</strong></div>
+                                        <div class="activity-text" style="color: var(--text-secondary); font-size: 0.857rem;">${announcement.content.substring(0, 80)}${announcement.content.length > 80 ? '...' : ''}</div>
+                                        <div class="activity-time">${Components.formatDate(announcement.date)}</div>
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    ` : `
+                        <div style="text-align: center; padding: 24px; color: var(--text-muted);">
+                            <p>Belum ada pengumuman</p>
+                            <button class="btn btn-sm btn-primary" onclick="App.navigateTo('announcements-church')">Tambah Pengumuman</button>
+                        </div>
+                    `}
+                </div>
+
                 <!-- Recent Activities -->
                 <div class="card">
                     <div class="card-header">

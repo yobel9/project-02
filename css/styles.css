@@ -1415,6 +1415,11 @@ body.sidebar-minimized .sidebar-minimize svg {
     color: var(--warning);
 }
 
+.activity-icon.announcement {
+    background: rgba(72, 187, 120, 0.1);
+    color: #48bb78;
+}
+
 .activity-icon.event {
     background: rgba(26, 54, 93, 0.1);
     color: var(--primary);
