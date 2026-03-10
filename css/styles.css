@@ -125,7 +125,8 @@ a:hover {
 }
 
 .sidebar-minimize,
-.sidebar-close {
+.sidebar-close,
+.sidebar-fullscreen {
     background: none;
     border: none;
     color: white;
@@ -136,13 +137,15 @@ a:hover {
 }
 
 .sidebar-minimize svg,
-.sidebar-close svg {
+.sidebar-close svg,
+.sidebar-fullscreen svg {
     width: 24px;
     height: 24px;
 }
 
 .sidebar-minimize:hover,
-.sidebar-close:hover {
+.sidebar-close:hover,
+.sidebar-fullscreen:hover {
     background: rgba(255,255,255,0.12);
 }
 

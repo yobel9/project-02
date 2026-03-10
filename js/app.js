@@ -61,6 +61,7 @@ const App = {
         const sidebar = document.getElementById('sidebar');
         const sidebarClose = document.getElementById('sidebarClose');
         const sidebarMinimize = document.getElementById('sidebarMinimize');
+        const sidebarFullscreen = document.getElementById('sidebarFullscreen');
 
         this.applySidebarState();
 
@@ -77,6 +78,13 @@ const App = {
                 this.sidebarMinimized = !this.sidebarMinimized;
                 localStorage.setItem('sidebarMinimized', String(this.sidebarMinimized));
                 this.applySidebarState();
+            });
+        }
+
+        // Fullscreen toggle
+        if (sidebarFullscreen) {
+            sidebarFullscreen.addEventListener('click', () => {
+                this.toggleFullscreen();
             });
         }
 
@@ -102,6 +110,38 @@ const App = {
         const sidebarMinimize = document.getElementById('sidebarMinimize');
         if (sidebarMinimize) {
             sidebarMinimize.title = isMinimized ? 'Expand Sidebar' : 'Minimize Sidebar';
+        }
+    },
+
+    // Toggle fullscreen mode
+    toggleFullscreen() {
+        const fullscreenBtn = document.getElementById('sidebarFullscreen');
+        
+        if (!document.fullscreenElement) {
+            // Enter fullscreen
+            document.documentElement.requestFullscreen().then(() => {
+                document.body.classList.add('fullscreen-mode');
+                if (fullscreenBtn) {
+                    fullscreenBtn.title = 'Exit Fullscreen';
+                    fullscreenBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 3H5C3.89543 3 3 3.89543 3 5V8M21 8V5C21 3.89543 20.1046 3 19 3H16M16 21H19C20.1046 21 21 20.1046 21 19V16M3 16V19C3 20.1046 3.89543 21 5 21H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>`;
+                }
+            }).catch(err => {
+                console.error('Error enabling fullscreen:', err);
+                Components.toast('Tidak dapat masuk fullscreen', 'error');
+            });
+        } else {
+            // Exit fullscreen
+            document.exitFullscreen().then(() => {
+                document.body.classList.remove('fullscreen-mode');
+                if (fullscreenBtn) {
+                    fullscreenBtn.title = 'Fullscreen';
+                    fullscreenBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 3H5C3.89543 3 3 3.89543 3 5V8M21 8V5C21 3.89543 20.1046 3 19 3H16M16 21H19C20.1046 21 21 20.1046 21 19V16M3 16V19C3 20.1046 3.89543 21 5 21H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>`;
+                }
+            });
         }
     },
 
