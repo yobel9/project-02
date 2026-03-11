@@ -80,14 +80,32 @@
 }
 
 /* Dark Mode - Table Overrides */
+[data-theme="dark"] .table tbody tr {
+    background: #1e1e1e;
+}
+
+[data-theme="dark"] .table tbody tr:hover {
+    background: #2d3748 !important;
+}
+
 [data-theme="dark"] .table tbody tr:nth-child(even) {
-    background: #1a202c;
+    background: #252525;
 }
 
 [data-theme="dark"] .table tbody tr:nth-child(even):hover {
-    background: #2d3748;
+    background: #2d3748 !important;
 }
 
+[data-theme="dark"] .table th {
+    background: #2d3748;
+    color: #f7fafc;
+}
+
+[data-theme="dark"] .table td {
+    border-color: #2d3748;
+}
+
+/* Dark Mode - Badge Overrides */
 [data-theme="dark"] .badge-success {
     background: rgba(72, 187, 120, 0.25);
     color: #68d391;
@@ -104,8 +122,8 @@
 }
 
 [data-theme="dark"] .badge-info {
-    background: rgba(66, 153, 225, 0.25);
-    color: #63b3ed;
+    background: rgba(66, 153, 225, 0.35);
+    color: #90cdf4;
 }
 
 /* Reset & Base */
