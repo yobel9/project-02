@@ -55,6 +55,11 @@ const App = {
         if (!await Auth.requireAuth()) return;
         this.sidebarMinimized = localStorage.getItem('sidebarMinimized') === 'true';
         
+        // Check for hash in URL and navigate if present
+        const hash = window.location.hash.replace('#', '');
+        const targetPage = hash && this.pages[hash] ? hash : 'dashboard';
+        console.log('Initial page:', targetPage, '(hash:', hash, ')');
+        
         // Apply saved theme
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
@@ -66,6 +71,10 @@ const App = {
         
         // Preload dashboard script for faster initial load
         await this.loadPageScript('dashboard');
+        // Preload chat script if needed
+        if (targetPage === 'chat') {
+            await this.loadPageScript('chat');
+        }
         
         // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {
@@ -83,7 +92,8 @@ const App = {
         this.setupUserActions();
         await this.updateCurrentUserProfile();
         
-        await this.loadPage('dashboard');
+        // Load the appropriate page based on URL hash
+        await this.loadPage(targetPage);
     },
 
     setupNavigation() {
