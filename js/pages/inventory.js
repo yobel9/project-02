@@ -62,7 +62,7 @@ const Inventory = {
                 <div class="filters">
                     <div class="filter-group">
                         <label>Cari:</label>
-                        <input id="inventorySearchInput" type="text" class="form-input" placeholder="Nama barang atau lokasi..." value="${this.filters.search}" oninput="Inventory.handleSearch(this.value)">
+                        <input id="inventorySearchInput" type="text" class="form-input" placeholder="Nama barang atau lokasi..." value="${this.filters.search}" onkeyup="if(event.key==='Enter'){Inventory.handleSearch(this.value)}" onblur="Inventory.handleSearch(this.value)">
                     </div>
                     <div class="filter-group">
                         <label>Kategori:</label>
@@ -202,29 +202,7 @@ const Inventory = {
     handleSearch(value) {
         this.filters.search = value;
         this.applyFilters();
-        
-        // Debounce render to prevent cursor jumping - longer delay
-        if (this.searchDebounceTimer) {
-            clearTimeout(this.searchDebounceTimer);
-        }
-        this.searchDebounceTimer = setTimeout(() => {
-            // Save input element reference before render
-            const input = document.getElementById('inventorySearchInput');
-            const savedValue = input ? input.value : value;
-            const savedPos = input ? input.selectionStart : savedValue.length;
-            
-            this.render();
-            
-            // Restore input after render
-            const newInput = document.getElementById('inventorySearchInput');
-            if (newInput) {
-                newInput.value = savedValue;
-                newInput.focus();
-                if (savedPos <= savedValue.length) {
-                    newInput.setSelectionRange(savedPos, savedPos);
-                }
-            }
-        }, 300);
+        this.render();
     },
 
     handleCategoryFilter(value) {

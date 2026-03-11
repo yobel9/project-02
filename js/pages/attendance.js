@@ -32,7 +32,7 @@ const Attendance = {
             <div class="filters" style="margin-bottom: 20px;">
                 <div class="filter-group">
                     <label>Cari:</label>
-                    <input id="structureSearchInput" type="text" class="form-input" placeholder="Role atau nama..." value="${this.filters.search}" oninput="Attendance.handleSearch(this.value)">
+                    <input id="structureSearchInput" type="text" class="form-input" placeholder="Role atau nama..." value="${this.filters.search}" onkeyup="if(event.key==='Enter'){Attendance.handleSearch(this.value)}" onblur="Attendance.handleSearch(this.value)">
                 </div>
             </div>
 
@@ -110,29 +110,7 @@ const Attendance = {
 
     handleSearch(value) {
         this.filters.search = value;
-        
-        // Debounce render to prevent cursor jumping - longer delay
-        if (this.searchDebounceTimer) {
-            clearTimeout(this.searchDebounceTimer);
-        }
-        this.searchDebounceTimer = setTimeout(() => {
-            // Save input element reference before render
-            const input = document.getElementById('structureSearchInput');
-            const savedValue = input ? input.value : value;
-            const savedPos = input ? input.selectionStart : savedValue.length;
-            
-            this.render();
-            
-            // Restore input after render
-            const newInput = document.getElementById('structureSearchInput');
-            if (newInput) {
-                newInput.value = savedValue;
-                newInput.focus();
-                if (savedPos <= savedValue.length) {
-                    newInput.setSelectionRange(savedPos, savedPos);
-                }
-            }
-        }, 300);
+        this.render();
     },
 
     showAddModal() {
