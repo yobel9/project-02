@@ -153,7 +153,7 @@ const StorageService = {
         const defaultConfig = {
             provider: 'supabase',
             url: 'https://vkshfbbwiejfcwiuobdn.supabase.co',
-            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrc2hmYmJ3aWVqZmN3aXVvZGJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNTA0NDUsImV4cCI6MjA4ODYyNjQ0NX0.yjuIhKiE6gM63nTjbnyeiv1JL0doV6mYVTlxXTXOt94',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrc2hmYmJ3aWVqZmN3aXVvYmRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNTA0NDUsImV4cCI6MjA4ODYyNjQ0NX0.yjuIhKiE6gM63nTjbnyeiv1JL0doV6mYVTlxXTXOt94',
             table: 'app_storage'
         };
         // Also enable auto-pull by default
