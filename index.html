@@ -24,7 +24,7 @@
             if (fab) fab.style.display = 'flex';
         }
         // Check auth and show FAB
-        if (localStorage.getItem('gerejaku_user')) {
+        if (localStorage.getItem('churchAdminSession')) {
             window.addEventListener('load', function() {
                 setTimeout(showChatFab, 500);
             });
