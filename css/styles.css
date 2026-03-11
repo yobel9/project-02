@@ -81,23 +81,23 @@
 
 /* Dark Mode - Table Overrides */
 [data-theme="dark"] .table tbody tr {
-    background: #1e1e1e;
+    background: #1e1e1e !important;
 }
 
 [data-theme="dark"] .table tbody tr:hover {
-    background: #2d3748 !important;
+    background: #4a5568 !important;
 }
 
 [data-theme="dark"] .table tbody tr:nth-child(even) {
-    background: #252525;
+    background: #252525 !important;
 }
 
 [data-theme="dark"] .table tbody tr:nth-child(even):hover {
-    background: #2d3748 !important;
+    background: #4a5568 !important;
 }
 
 [data-theme="dark"] .table th {
-    background: #2d3748;
+    background: #2d3748 !important;
     color: #f7fafc;
 }
 
