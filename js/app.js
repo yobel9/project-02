@@ -284,6 +284,11 @@ const App = {
         }
 
         pageConfig.render();
+        
+        // Call afterRender for specific pages that need it
+        if (pageName === 'chat' && typeof Chat !== 'undefined' && Chat.afterRender) {
+            await Chat.afterRender();
+        }
     },
 
     // Utility to navigate to a page
