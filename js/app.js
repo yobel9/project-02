@@ -36,6 +36,17 @@ const App = {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
         
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then((registration) => {
+                    console.log('ServiceWorker registered:', registration.scope);
+                })
+                .catch((error) => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+        }
+        
         this.setupNavigation();
         this.setupSidebar();
         this.setupUserActions();

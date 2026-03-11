@@ -1,0 +1,10 @@
+{
+  "name": "GerejaKu Admin",
+  "short_name": "GerejaKu",
+  "description": "Aplikasi Administrasi Gereja",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a365d",
+  "theme_color": "#1a365d",
+  "orientation": "any"
+}
