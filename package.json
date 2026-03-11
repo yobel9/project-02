@@ -1,0 +1,20 @@
+{
+  "name": "gerejaku-admin",
+  "version": "1.0.0",
+  "description": "Church Administration Web Application",
+  "scripts": {
+    "build": "npm run minify:css && npm run minify:js",
+    "minify:css": "cleancss -o css/styles.min.css css/styles.css",
+    "minify:js": "terser js/app.js -o js/app.min.js && terser js/data.js -o js/data.min.js && terser js/storage.js -o js/storage.min.js && terser js/components.js -o js/components.min.js && terser js/auth-simple.js -o js/auth-simple.min.js",
+    "minify:js:pages": "terser js/pages/dashboard.js -o js/pages/dashboard.min.js && terser js/pages/members.js -o js/pages/members.min.js && terser js/pages/attendance.js -o js/pages/attendance.min.js && terser js/pages/finance.js -o js/pages/finance.min.js && terser js/pages/inventory.js -o js/pages/inventory.min.js",
+    "minify:all": "npm run minify:css && npm run minify:js && npm run minify:js:pages",
+    "dev": "echo 'Running in development mode - no minification'"
+  },
+  "keywords": ["church", "admin", "pwa"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "clean-css-cli": "^5.6.3",
+    "terser": "^5.31.0"
+  }
+}

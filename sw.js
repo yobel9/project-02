@@ -1,25 +1,25 @@
 // Service Worker for GerejaKu Admin PWA
-const CACHE_NAME = 'gerejaku-v7';
+const CACHE_NAME = 'gerejaku-v8';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/css/styles.css?v=20260315',
-  '/js/app.js?v=20260315',
-  '/js/data.js?v=20260315',
-  '/js/auth-simple.js?v=20260315',
-  '/js/components.js?v=20260315',
-  '/js/storage.js?v=20260315',
-  '/js/pages/dashboard.js?v=20260315',
-  '/js/pages/members.js?v=20260315',
-  '/js/pages/attendance.js?v=20260315',
-  '/js/pages/finance.js?v=20260315',
-  '/js/pages/inventory.js?v=20260315',
-  '/js/pages/users.js?v=20260315',
-  '/js/pages/settings.js?v=20260315',
-  '/js/pages/worship-schedule.js?v=20260315',
-  '/js/pages/events.js?v=20260315',
-  '/js/pages/church-announcements.js?v=20260315',
-  '/js/pages/commissions.js?v=20260315',
+  '/css/styles.min.css',
+  '/js/app.min.js',
+  '/js/data.min.js',
+  '/js/auth-simple.min.js',
+  '/js/components.min.js',
+  '/js/storage.min.js',
+  '/js/pages/dashboard.js',
+  '/js/pages/members.js',
+  '/js/pages/attendance.js',
+  '/js/pages/finance.js',
+  '/js/pages/inventory.js',
+  '/js/pages/users.js',
+  '/js/pages/settings.js',
+  '/js/pages/worship-schedule.js',
+  '/js/pages/events.js',
+  '/js/pages/church-announcements.js',
+  '/js/pages/commissions.js',
   '/manifest.json'
 ];
 
