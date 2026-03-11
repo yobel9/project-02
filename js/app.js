@@ -60,6 +60,9 @@ const App = {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
         
+        // Load app settings (church name, logo)
+        this.loadAppSettings();
+        
         // Preload dashboard script for faster initial load
         await this.loadPageScript('dashboard');
         
@@ -367,6 +370,53 @@ const App = {
         Components.closeModal();
         Components.toast('Restore data berhasil. Halaman akan dimuat ulang.', 'success');
         setTimeout(() => window.location.reload(), 500);
+    }
+    
+    // Load app settings (church name, logo)
+    loadAppSettings() {
+        const churchName = localStorage.getItem('churchName');
+        const churchLogo = localStorage.getItem('churchLogo');
+        
+        if (churchName) {
+            const logoText = document.getElementById('logoText');
+            if (logoText) logoText.textContent = churchName;
+            
+            // Update document title
+            document.title = churchName + ' Admin';
+        }
+        
+        if (churchLogo) {
+            const logoImage = document.getElementById('logoImage');
+            const logoSvg = document.getElementById('logoSvg');
+            if (logoImage && logoSvg) {
+                logoImage.src = churchLogo;
+                logoImage.style.display = 'block';
+                logoSvg.style.display = 'none';
+            }
+        }
+    },
+    
+    // Update app settings
+    updateAppSettings(settings) {
+        if (settings.churchName) {
+            localStorage.setItem('churchName', settings.churchName);
+            const logoText = document.getElementById('logoText');
+            if (logoText) logoText.textContent = settings.churchName;
+            document.title = settings.churchName + ' Admin';
+        }
+        
+        if (settings.churchLogo) {
+            localStorage.setItem('churchLogo', settings.churchLogo);
+            const logoImage = document.getElementById('logoImage');
+            const logoSvg = document.getElementById('logoSvg');
+            if (logoImage && logoSvg) {
+                logoImage.src = settings.churchLogo;
+                logoImage.style.display = 'block';
+                logoSvg.style.display = 'none';
+            }
+        }
+        
+        return true;
     }
 };
 

@@ -1,11 +1,15 @@
 // ============================================
-// Church Admin - Settings Page (Simplified)
+// Church Admin - Settings Page
 // ============================================
 
 const Settings = {
     async render() {
         const isAdmin = await Auth.isAdmin();
         const isDark = localStorage.getItem('theme') === 'dark';
+        
+        // Get saved settings
+        const churchName = localStorage.getItem('churchName') || 'GerejaKu';
+        const churchLogo = localStorage.getItem('churchLogo') || '';
 
         const content = document.getElementById('content');
         content.innerHTML = `
@@ -13,7 +17,40 @@ const Settings = {
                 <h1 class="page-title">Pengaturan</h1>
             </div>
 
+            <!-- Informasi Gereja -->
             <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Informasi Gereja</h3>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                    Ubah nama dan logo gereja yang ditampilkan di aplikasi.
+                </p>
+                
+                <div class="form-group">
+                    <label class="form-label">Nama Gereja</label>
+                    <input type="text" id="churchNameInput" class="form-input" value="${churchName}" placeholder="Nama Gereja">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Logo Gereja</label>
+                    <input type="file" id="churchLogoInput" class="form-input" accept="image/*">
+                    <small style="color: var(--text-secondary);">Unggah gambar (JPG, PNG). Ukuran disarankan 512x512.</small>
+                    ${churchLogo ? `
+                        <div style="margin-top: 10px;">
+                            <img src="${churchLogo}" alt="Logo Saat Ini" style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);">
+                            <button class="btn btn-secondary" style="margin-left: 10px;" onclick="Settings.removeLogo()">Hapus Logo</button>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <button class="btn btn-primary" onclick="Settings.saveChurchInfo()">
+                    <svg viewBox="0 0 24 24" fill="none" style="width: 18px; height: 18px; margin-right: 8px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7,3 7,8 15,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Simpan
+                </button>
+            </div>
+
+            <!-- Tampilan -->
+            <div class="card" style="margin-top: 20px;">
                 <div class="card-header">
                     <h3 class="card-title">Tampilan</h3>
                 </div>
@@ -36,6 +73,7 @@ const Settings = {
                 </div>
             </div>
 
+            <!-- Backup & Restore Data -->
             <div class="card" style="margin-top: 20px;">
                 <div class="card-header">
                     <h3 class="card-title">Backup & Restore Data</h3>
@@ -61,12 +99,13 @@ const Settings = {
                 `}
             </div>
 
+            <!-- Tentang Aplikasi -->
             <div class="card" style="margin-top: 20px;">
                 <div class="card-header">
                     <h3 class="card-title">Tentang Aplikasi</h3>
                 </div>
                 <div style="color: var(--text-secondary);">
-                    <p><strong>GerejaKu Admin</strong> - Aplikasi Administrasi Gereja</p>
+                    <p><strong>${churchName} Admin</strong> - Aplikasi Administrasi Gereja</p>
                     <p>Versi: 1.0.0</p>
                     <p style="margin-top: 10px;">Data disimpan secara lokal di browser (localStorage). Gunakan fitur backup untuk menjaga keamanan data Anda.</p>
                 </div>
@@ -90,5 +129,74 @@ const Settings = {
             document.documentElement.removeAttribute('data-theme');
             localStorage.setItem('theme', 'light');
         }
+    },
+    
+    async saveChurchInfo() {
+        const nameInput = document.getElementById('churchNameInput');
+        const logoInput = document.getElementById('churchLogoInput');
+        
+        const churchName = nameInput.value.trim();
+        
+        if (!churchName) {
+            Components.toast('Nama gereja tidak boleh kosong!', 'error');
+            return;
+        }
+        
+        // Save church name
+        localStorage.setItem('churchName', churchName);
+        
+        // Update UI immediately
+        const logoText = document.getElementById('logoText');
+        if (logoText) logoText.textContent = churchName;
+        document.title = churchName + ' Admin';
+        
+        // Handle logo upload
+        if (logoInput && logoInput.files && logoInput.files[0]) {
+            const file = logoInput.files[0];
+            
+            // Check file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                Components.toast('Ukuran gambar maksimal 2MB!', 'error');
+                return;
+            }
+            
+            // Convert to base64
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                localStorage.setItem('churchLogo', base64);
+                
+                // Update logo immediately
+                const logoImage = document.getElementById('logoImage');
+                const logoSvg = document.getElementById('logoSvg');
+                if (logoImage && logoSvg) {
+                    logoImage.src = base64;
+                    logoImage.style.display = 'block';
+                    logoSvg.style.display = 'none';
+                }
+                
+                Components.toast('Informasi gereja berhasil disimpan!', 'success');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            Components.toast('Informasi gereja berhasil disimpan!', 'success');
+        }
+    },
+    
+    removeLogo() {
+        localStorage.removeItem('churchLogo');
+        
+        // Update logo immediately
+        const logoImage = document.getElementById('logoImage');
+        const logoSvg = document.getElementById('logoSvg');
+        if (logoImage && logoSvg) {
+            logoImage.style.display = 'none';
+            logoSvg.style.display = 'block';
+        }
+        
+        Components.toast('Logo berhasil dihapus!', 'success');
+        
+        // Re-render to update the UI
+        this.render();
     }
 };

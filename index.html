@@ -17,13 +17,14 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo">
-                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div class="logo" id="sidebarLogo">
+                    <img id="logoImage" class="logo-icon" src="" alt="Logo" style="display: none; width: 32px; height: 32px; border-radius: 8px; object-fit: cover;">
+                    <svg id="logoSvg" class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M22 7L12 12L2 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span class="logo-text">GerejaKu</span>
+                    <span class="logo-text" id="logoText">GerejaKu</span>
                 </div>
                 <div class="sidebar-actions">
                     <button class="sidebar-minimize" id="sidebarMinimize" title="Minimize Sidebar">
