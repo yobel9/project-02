@@ -267,6 +267,7 @@ const App = {
         
         // Special handling for chat - show as modal
         if (pageName === 'chat') {
+            await this.loadPageScript('chat');
             pageConfig.render();
             return;
         }
