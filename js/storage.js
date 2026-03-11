@@ -45,9 +45,14 @@ class DatabaseAdapter {
     }
 
     async getItem(key) {
+        // Always try localStorage first for faster reads
+        const localData = localStorage.getItem(key);
+        if (localData) {
+            return localData;
+        }
+        
         if (!this.supabase || !this.config.table) {
-            // Fallback to localStorage if Supabase is not ready
-            return localStorage.getItem(key);
+            return null;
         }
         try {
             const { data, error } = await this.supabase
@@ -64,15 +69,15 @@ class DatabaseAdapter {
             return data?.payload ? JSON.stringify(data.payload) : null;
         } catch (error) {
             console.error(`Gagal mengambil item '${key}' dari Supabase:`, error.message);
-            // Fallback to localStorage on error
-            return localStorage.getItem(key);
+            return null;
         }
     }
 
     async setItem(key, value) {
+        // Always save to localStorage as backup first
+        localStorage.setItem(key, value);
+        
         if (!this.supabase || !this.config.table) {
-            // Fallback to localStorage if Supabase is not ready
-            localStorage.setItem(key, value);
             return;
         }
         try {
@@ -90,8 +95,6 @@ class DatabaseAdapter {
             }
         } catch (error) {
             console.error(`Gagal menyimpan item '${key}' ke Supabase:`, error.message);
-            // Fallback to localStorage on error
-            localStorage.setItem(key, value);
         }
     }
 
