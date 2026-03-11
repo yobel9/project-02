@@ -234,6 +234,7 @@ const App = {
     },
 
     async loadPage(pageName) {
+        console.log('Loading page:', pageName);
         if (!(await Auth.isAuthenticated())) {
             Auth.renderLogin();
             return;
