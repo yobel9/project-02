@@ -203,6 +203,25 @@
     color: var(--text-primary);
 }
 
+/* Dark Mode - Toast/Alert Overrides */
+[data-theme="dark"] .toast {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+[data-theme="dark"] .toast-title {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .toast-message {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .toast.info .toast-icon {
+    color: var(--info);
+}
+
 /* Reset & Base */
 *, *::before, *::after {
     box-sizing: border-box;
