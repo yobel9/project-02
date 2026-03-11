@@ -14,6 +14,11 @@ const Settings = {
         
         // Get Supabase config
         const supabaseConfig = StorageService.getDatabaseConfig();
+        
+        // Auto-connect to Supabase if configured
+        if (supabaseConfig.url && supabaseConfig.anonKey && StorageService.getMode() !== 'database') {
+            setTimeout(() => this.testSupabaseConnection(), 500);
+        }
 
         const content = document.getElementById('content');
         content.innerHTML = `
@@ -294,6 +299,18 @@ const Settings = {
 
     async testSupabaseConnection() {
         try {
+            // Auto-connect if config is available
+            const config = StorageService.getDatabaseConfig();
+            if (!config.url || !config.anonKey) {
+                Components.toast('Mohon masukkan URL dan Anon Key terlebih dahulu', 'warning');
+                return;
+            }
+            
+            // Check if already in database mode
+            if (StorageService.getMode() !== 'database') {
+                StorageService.setMode('database');
+            }
+            
             Components.toast('Menguji koneksi ke Supabase...', 'info');
             
             const result = await StorageService.testDatabaseConnection();
