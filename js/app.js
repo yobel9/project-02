@@ -7,23 +7,47 @@ const App = {
     sidebarMinimized: false,
     backgroundPullTimer: null,
     backgroundPullRunning: false,
+    loadedScripts: new Set(),
     pages: {
-        dashboard: { title: 'Dashboard', render: () => Dashboard.render() },
-        members: { title: 'Data Jemaat', render: () => Members.render() },
-        'commissions-all': { title: 'Semua Komisi', render: () => Commissions.render('all') },
-        'commissions-sunday-school': { title: 'Komisi Sekolah Minggu', render: () => Commissions.render('sunday_school') },
-        'commissions-youth': { title: 'Komisi Pemuda Remaja', render: () => Commissions.render('youth') },
-        'commissions-men': { title: 'Komisi Pria', render: () => Commissions.render('men') },
-        'commissions-women': { title: 'Komisi Wanita', render: () => Commissions.render('women') },
-        attendance: { title: 'Struktur Pengurus', render: () => Attendance.render() },
-        finance: { title: 'Keuangan', render: () => Finance.render() },
-        inventory: { title: 'Inventaris Gereja', render: () => Inventory.render() },
-        users: { title: 'Manajemen User', render: () => Users.render() },
-        settings: { title: 'Pengaturan', render: () => Settings.render() },
-        'announcements-schedule': { title: 'Jadwal Ibadah', render: () => WorshipSchedule.render() },
-        'announcements-events': { title: 'Event', render: () => Events.render() },
-        'announcements-church': { title: 'Pengumuman Gereja', render: () => ChurchAnnouncements.render() },
-        events: { title: 'Event', render: () => Events.render() }
+        dashboard: { title: 'Dashboard', script: 'dashboard', render: () => Dashboard.render() },
+        members: { title: 'Data Jemaat', script: 'members', render: () => Members.render() },
+        'commissions-all': { title: 'Semua Komisi', script: 'commissions', render: () => Commissions.render('all') },
+        'commissions-sunday-school': { title: 'Komisi Sekolah Minggu', script: 'commissions', render: () => Commissions.render('sunday_school') },
+        'commissions-youth': { title: 'Komisi Pemuda Remaja', script: 'commissions', render: () => Commissions.render('youth') },
+        'commissions-men': { title: 'Komisi Pria', script: 'commissions', render: () => Commissions.render('men') },
+        'commissions-women': { title: 'Komisi Wanita', script: 'commissions', render: () => Commissions.render('women') },
+        attendance: { title: 'Struktur Pengurus', script: 'attendance', render: () => Attendance.render() },
+        finance: { title: 'Keuangan', script: 'finance', render: () => Finance.render() },
+        inventory: { title: 'Inventaris Gereja', script: 'inventory', render: () => Inventory.render() },
+        users: { title: 'Manajemen User', script: 'users', render: () => Users.render() },
+        settings: { title: 'Pengaturan', script: 'settings', render: () => Settings.render() },
+        'announcements-schedule': { title: 'Jadwal Ibadah', script: 'worship-schedule', render: () => WorshipSchedule.render() },
+        'announcements-events': { title: 'Event', script: 'events', render: () => Events.render() },
+        'announcements-church': { title: 'Pengumuman Gereja', script: 'church-announcements', render: () => ChurchAnnouncements.render() },
+        events: { title: 'Event', script: 'events', render: () => Events.render() }
+    },
+
+    // Lazy load page script
+    async loadPageScript(scriptName) {
+        if (!scriptName || this.loadedScripts.has(scriptName)) {
+            return Promise.resolve();
+        }
+        
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = `js/pages/${scriptName}.js`;
+            script.async = true;
+            script.onload = () => {
+                this.loadedScripts.add(scriptName);
+                console.log(`Loaded: ${scriptName}.js`);
+                resolve();
+            };
+            script.onerror = () => {
+                console.error(`Failed to load: ${scriptName}.js`);
+                reject(new Error(`Failed to load ${scriptName}.js`));
+            };
+            document.head.appendChild(script);
+        });
     },
 
     async init() {
@@ -35,6 +59,9 @@ const App = {
         if (savedTheme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
+        
+        // Preload dashboard script for faster initial load
+        await this.loadPageScript('dashboard');
         
         // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {
@@ -245,6 +272,11 @@ const App = {
         // Close sidebar on mobile
         if (window.innerWidth <= 768) {
             document.getElementById('sidebar').classList.remove('active');
+        }
+
+        // Lazy load page script
+        if (pageConfig.script) {
+            await this.loadPageScript(pageConfig.script);
         }
 
         pageConfig.render();
