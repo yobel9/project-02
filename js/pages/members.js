@@ -266,6 +266,7 @@ const Members = {
         this.searchDebounceTimer = setTimeout(() => {
             // Save cursor position right BEFORE render (after debounce completes)
             const input = document.getElementById('membersSearchInput');
+            const wasFocused = document.activeElement === input;
             const savedValue = input ? input.value : value;
             const savedPos = input ? input.selectionStart : value.length;
             
@@ -279,8 +280,14 @@ const Members = {
                 if (savedPos >= 0 && savedPos <= savedValue.length) {
                     newInput.setSelectionRange(savedPos, savedPos);
                 }
+                // Keep focus active if it was focused before
+                if (wasFocused || savedValue.length > 0) {
+                    newInput.focus();
+                    // Ensure cursor is at the end
+                    newInput.setSelectionRange(savedValue.length, savedValue.length);
+                }
             }
-        }, 500);
+        }, 600);
     },
 
     handleStatusFilter(value) {

@@ -118,6 +118,7 @@ const Attendance = {
         this.searchDebounceTimer = setTimeout(() => {
             // Save cursor position right BEFORE render
             const input = document.getElementById('structureSearchInput');
+            const wasFocused = document.activeElement === input;
             const savedValue = input ? input.value : value;
             const savedPos = input ? input.selectionStart : value.length;
             
@@ -130,8 +131,13 @@ const Attendance = {
                 if (savedPos >= 0 && savedPos <= savedValue.length) {
                     newInput.setSelectionRange(savedPos, savedPos);
                 }
+                // Keep focus active
+                if (wasFocused || savedValue.length > 0) {
+                    newInput.focus();
+                    newInput.setSelectionRange(savedValue.length, savedValue.length);
+                }
             }
-        }, 500);
+        }, 600);
     },
 
     showAddModal() {
