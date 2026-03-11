@@ -29,6 +29,13 @@ const App = {
     async init() {
         if (!await Auth.requireAuth()) return;
         this.sidebarMinimized = localStorage.getItem('sidebarMinimized') === 'true';
+        
+        // Apply saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        
         this.setupNavigation();
         this.setupSidebar();
         this.setupUserActions();
