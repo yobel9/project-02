@@ -24,7 +24,8 @@ const App = {
         'announcements-schedule': { title: 'Jadwal Ibadah', script: 'worship-schedule', render: () => WorshipSchedule.render() },
         'announcements-events': { title: 'Event', script: 'events', render: () => Events.render() },
         'announcements-church': { title: 'Pengumuman Gereja', script: 'church-announcements', render: () => ChurchAnnouncements.render() },
-        events: { title: 'Event', script: 'events', render: () => Events.render() }
+        events: { title: 'Event', script: 'events', render: () => Events.render() },
+        chat: { title: 'Chat Admin', script: 'chat', render: () => Chat.render() }
     },
 
     // Lazy load page script

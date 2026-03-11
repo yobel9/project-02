@@ -257,6 +257,35 @@ CREATE INDEX IF NOT EXISTS idx_church_activities_type ON church_activities(type)
 CREATE INDEX IF NOT EXISTS idx_church_activities_created_at ON church_activities(created_at DESC);
 
 -- ============================================
+-- Table: chat_messages
+-- ============================================
+-- Internal chat messages between users and admin
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id TEXT PRIMARY KEY,
+    sender_id TEXT NOT NULL,
+    sender_name TEXT NOT NULL,
+    message TEXT NOT NULL,
+    is_admin BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    read BOOLEAN DEFAULT false
+);
+
+-- Create indexes
+CREATE INDEX IF NOT EXISTS idx_chat_messages_created_at ON chat_messages(created_at DESC);
+
+-- ============================================
+-- Table: user_status
+-- ============================================
+-- Track online/offline status of users
+CREATE TABLE IF NOT EXISTS user_status (
+    user_id TEXT PRIMARY KEY,
+    user_name TEXT NOT NULL,
+    is_online BOOLEAN DEFAULT false,
+    last_seen TIMESTAMP WITH TIME ZONE,
+    is_admin BOOLEAN DEFAULT false
+);
+
+-- ============================================
 -- Row Level Security (RLS) Policies
 -- ============================================
 
@@ -273,6 +302,8 @@ ALTER TABLE church_inventory ENABLE ROW LEVEL SECURITY;
 ALTER TABLE church_announcements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE church_worship_schedules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE church_activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_status ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
 -- app_storage Policies
@@ -584,6 +615,26 @@ CREATE POLICY "Authenticated users can insert activities"
 ON church_activities
 FOR INSERT
 TO authenticated
+WITH CHECK (true);
+
+-- ============================================
+-- chat_messages Policies
+-- ============================================
+CREATE POLICY "Enable all operations for chat_messages"
+ON chat_messages
+FOR ALL
+TO authenticated
+USING (true)
+WITH CHECK (true);
+
+-- ============================================
+-- user_status Policies
+-- ============================================
+CREATE POLICY "Enable all operations for user_status"
+ON user_status
+FOR ALL
+TO authenticated
+USING (true)
 WITH CHECK (true);
 
 -- ============================================
