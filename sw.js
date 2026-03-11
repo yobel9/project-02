@@ -1,29 +1,30 @@
 // Service Worker for GerejaKu Admin PWA
-const CACHE_NAME = 'gerejaku-v8';
+const CACHE_NAME = 'gerejaku-v9';
+const BASE_PATH = '/project-02';
+
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/css/styles.min.css',
-  '/js/app.min.js',
-  '/js/data.min.js',
-  '/js/auth-simple.min.js',
-  '/js/components.min.js',
-  '/js/storage.min.js',
-  '/assets/images/icon-192.png',
-  '/assets/images/icon-512.png',
-  '/js/pages/dashboard.js',
-  '/js/pages/members.js',
-  '/js/pages/attendance.js',
-  '/js/pages/finance.js',
-  '/js/pages/inventory.js',
-  '/js/pages/users.js',
-  '/js/pages/settings.js',
-  '/js/pages/worship-schedule.js',
-  '/js/pages/events.js',
-  '/js/pages/church-announcements.js',
-  '/js/pages/commissions.js',
-  '/manifest.json'
+  BASE_PATH + '/',
+  BASE_PATH + '/index.html',
+  BASE_PATH + '/manifest.json',
+  BASE_PATH + '/css/styles.min.css',
+  BASE_PATH + '/js/app.min.js',
+  BASE_PATH + '/js/data.min.js',
+  BASE_PATH + '/js/auth-simple.min.js',
+  BASE_PATH + '/js/components.min.js',
+  BASE_PATH + '/js/storage.min.js',
+  BASE_PATH + '/assets/images/icon-192.png',
+  BASE_PATH + '/assets/images/icon-512.png',
+  BASE_PATH + '/js/pages/dashboard.js',
+  BASE_PATH + '/js/pages/members.js',
+  BASE_PATH + '/js/pages/attendance.js',
+  BASE_PATH + '/js/pages/finance.js',
+  BASE_PATH + '/js/pages/inventory.js',
+  BASE_PATH + '/js/pages/users.js',
+  BASE_PATH + '/js/pages/settings.js',
+  BASE_PATH + '/js/pages/worship-schedule.js',
+  BASE_PATH + '/js/pages/events.js',
+  BASE_PATH + '/js/pages/church-announcements.js',
+  BASE_PATH + '/js/pages/commissions.js'
 ];
 
 // Install event - cache resources
@@ -32,7 +33,9 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        return cache.addAll(urlsToCache).catch((err) => {
+          console.log('Cache addAll error:', err);
+        });
       })
   );
 });
