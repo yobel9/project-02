@@ -167,18 +167,18 @@ const StorageService = {
             return defaultConfig;
         }
         try {
+            const parsed = JSON.parse(raw);
+            // If saved config doesn't have valid anonKey, use default
+            if (!parsed || !parsed.anonKey || parsed.anonKey.length < 20) {
+                return defaultConfig;
+            }
             return {
                 provider: 'supabase',
                 table: 'app_storage',
-                ...JSON.parse(raw)
+                ...parsed
             };
         } catch (error) {
-            return {
-                provider: 'supabase',
-                url: '',
-                anonKey: '',
-                table: 'app_storage'
-            };
+            return defaultConfig;
         }
     },
 

@@ -116,6 +116,9 @@ const Settings = {
                     <button class="btn btn-secondary" onclick="Settings.testSupabaseConnection()">
                         Test Koneksi
                     </button>
+                    <button class="btn btn-warning" onclick="Settings.resetSupabaseConfig()" style="margin-left: auto;">
+                        Reset ke Default
+                    </button>
                 </div>
                 
                 ${supabaseConfig.url ? `
@@ -297,6 +300,21 @@ const Settings = {
         
         // Test connection
         this.testSupabaseConnection();
+    },
+
+    resetSupabaseConfig() {
+        if (!confirm('Apakah Anda yakin ingin mereset konfigurasi Supabase ke default? Ini akan menghapus konfigurasi kustom Anda.')) {
+            return;
+        }
+        // Clear the saved config from localStorage
+        localStorage.removeItem('databaseConfig');
+        // Also clear sync metadata to prevent conflicts
+        localStorage.removeItem('storageSyncMeta');
+        // Reset to local mode temporarily
+        StorageService.setMode('local');
+        Components.toast('Konfigurasi direset. Halaman akan dimuat ulang...', 'success');
+        // Reload to apply default config
+        setTimeout(() => window.location.reload(), 1500);
     },
 
     async testSupabaseConnection() {
