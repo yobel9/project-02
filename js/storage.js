@@ -577,17 +577,14 @@ const StorageService = {
     },
 
     async autoPullOnStartup(storageKey = 'churchAdminData') {
-        // Always pull from Supabase, don't check localStorage
+        // Always pull from Supabase, don't check localStorage or dirty flag
         if (this.getMode() !== 'database' || !this.isAutoPullEnabled() || !this.isDatabaseConfigReady()) {
             return { pulled: false, reason: 'disabled' };
         }
         
-        // Always pull from Supabase - don't skip if local data exists
+        // Always pull from Supabase - ignore local dirty flag
         console.log('[StorageService] Auto pulling from Supabase...');
         
-        if (this.getSyncMeta().dirty) {
-            return { pulled: false, reason: 'local_dirty' };
-        }
         try {
             const result = await this.pullDatabaseDataToLocal(storageKey, { force: true });
             return { pulled: true, changed: result.changed, reason: 'ok' };
