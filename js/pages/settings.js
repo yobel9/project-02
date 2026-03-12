@@ -294,7 +294,7 @@ var Settings = {
         StorageService.setDatabaseConfig({ url, anonKey });
         StorageService.setMode('database');
         StorageService.setAutoSyncEnabled(true);
-        StorageService.setAutoPullEnabled(false); // Disable pull to prevent overwriting local changes
+        StorageService.setAutoPullEnabled(true); // Enable pull to get data from cloud
         
         Components.toast('Konfigurasi Supabase disimpan. Menguji koneksi...', 'success');
         

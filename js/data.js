@@ -9,8 +9,25 @@ const AppData = {
     async init() {
         console.log('AppData.init() called');
         try {
-            // Skip auto-pull from Supabase - use localStorage only for now
-            // This prevents data from being overwritten by Supabase
+            // Try to pull from Supabase if in database mode
+            if (StorageService.getMode() === 'database' && StorageService.isAutoPullEnabled()) {
+                try {
+                    const pullResult = await StorageService.autoPullOnStartup('churchAdminData');
+                    console.log('Auto pull result:', pullResult);
+                    if (pullResult.pulled && pullResult.changed) {
+                        console.log('Data pulled from Supabase, reloading...');
+                        // Data was pulled, reload from local
+                        const pulledData = await StorageService.getJSON('churchAdminData', null);
+                        if (pulledData) {
+                            this._data = pulledData;
+                            console.log('Data loaded from Supabase pull');
+                            return pulledData;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Auto pull failed:', e.message);
+                }
+            }
             
             const hasData = await StorageService.has('churchAdminData');
             console.log('Has data:', hasData);
