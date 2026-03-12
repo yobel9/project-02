@@ -57,13 +57,12 @@ class DatabaseAdapter {
         // Always save to localStorage first
         localStorage.setItem(key, value);
         
-        // Then try to push to Supabase in background
+        // Then sync to Supabase immediately
         if (!this.supabase || !this.config.table) {
             return;
         }
         
-        // Fire and forget - don't wait for Supabase
-        this.queueSync(key, value);
+        this.syncToSupabase(key, value);
     }
 
     async removeItem(key) {
@@ -528,6 +527,31 @@ const StorageService = {
         }
     },
 
+    // Sync to Supabase immediately
+    async syncToSupabase(key, value) {
+        if (!this.supabase || !this.config.table) {
+            return;
+        }
+        
+        try {
+            const payload = {
+                id: key,
+                payload: JSON.parse(value),
+                updated_at: new Date().toISOString()
+            };
+            const { error } = await this.supabase
+                .from(this.config.table)
+                .upsert(payload, { onConflict: 'id' });
+            if (error) {
+                console.error('Sync failed:', error.message);
+            } else {
+                console.log('Sync to Supabase successful');
+            }
+        } catch (error) {
+            console.error('Sync error:', error.message);
+        }
+    },
+
     // Fire and forget sync to Supabase
     queueSync(key, value) {
         if (this.syncTimer) {
@@ -535,23 +559,7 @@ const StorageService = {
         }
         this.syncTimer = setTimeout(async () => {
             this.syncTimer = null;
-            try {
-                const payload = {
-                    id: key,
-                    payload: JSON.parse(value),
-                    updated_at: new Date().toISOString()
-                };
-                const { error } = await this.supabase
-                    .from(this.config.table)
-                    .upsert(payload, { onConflict: 'id' });
-                if (error) {
-                    console.error('Sync failed:', error.message);
-                } else {
-                    console.log('Sync to Supabase successful');
-                }
-            } catch (error) {
-                console.error('Sync error:', error.message);
-            }
+            await this.syncToSupabase(key, value);
         }, 1500); // Wait 1.5 seconds after last change
     },
 
